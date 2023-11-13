@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "366920377031",
+    "project_id": "demochat-4535e",
+    "storage_bucket": "demochat-4535e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366920377031:android:23cccb37be7584fda054e2",
+        "android_client_info": {
+          "package_name": "com.demochat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKZ0ruDai2F0RW34zxsjUO5wZV4G4aRlw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
