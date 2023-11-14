@@ -2,7 +2,6 @@ import {
     Dimensions,
     FlatList,
     Image,
-    ImageBackground,
     StyleSheet,
     Text,
     TextInput,
@@ -18,9 +17,9 @@ const App = () => {
     const ref = useRef(null)
 
     useEffect(() => {
-        firestore()
+        const unsubscribe = firestore()
             .collection('Chat/1/RoomLive')
-            .orderBy('Time', 'desc')
+            .orderBy('Time')
             .onSnapshot((documentSnapshot) => {
                 const data = documentSnapshot.docs
                     .map((item) => {
@@ -28,15 +27,14 @@ const App = () => {
                     })
                     .sort((a, b) => a.Time - b.Time)
                 setListMessage(data)
-            })
-    }, [])
 
-    useEffect(() => {
-        if (listMessage.length > 2) {
-            console.log(13)
-            ref.current.scrollToIndex({ index: listMessage.length - 2 })
-        }
-    }, [listMessage])
+                if (ref.current) {
+                    ref.current.scrollToEnd({ animated: true })
+                }
+            })
+
+        return () => unsubscribe()
+    }, [])
 
     const addMessage = () => {
         if (!newMessage.trim()) {
@@ -53,7 +51,9 @@ const App = () => {
     return (
         <View style={styles.container}>
             <Image
-                src='https://vtv1.mediacdn.vn/2018/11/22/photo-3-15428716111551636354706.jpg'
+                source={{
+                    uri: 'https://thuthuatnhanh.com/wp-content/uploads/2020/09/hinh-anh-gif-den-duong.gif'
+                }}
                 style={{ width: '100%', height: '100%' }}
             />
             <View style={styles.viewChat}>
@@ -61,21 +61,47 @@ const App = () => {
                     ref={ref}
                     data={listMessage}
                     renderItem={({ item }) => {
-                        return <Text style={{ color: 'white', paddingTop: 5 }}>{item.Message}</Text>
+                        return (
+                            <View
+                                style={{
+                                    marginTop: 15,
+                                    flexDirection: 'row',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <Image
+                                    src='https://img.lovepik.com/free-png/20211130/lovepik-cartoon-avatar-png-image_401205251_wh1200.png'
+                                    style={{
+                                        width: 30,
+                                        height: 30,
+                                        borderRadius: 30,
+                                        marginRight: 5
+                                    }}
+                                />
+                                <View style={{ marginBottom: 5 }}>
+                                    <Text style={{ color: '#CCCCCC' }}>Tuấn AT</Text>
+                                    <Text style={{ color: 'white' }}>{item.Message}</Text>
+                                </View>
+                            </View>
+                        )
                     }}
                     onScrollToIndexFailed={(info) => {}}
+                    showsVerticalScrollIndicator={false}
                 />
 
                 <View style={styles.viewInput}>
                     <TextInput
-                        placeholder='Bạn đang nghĩ gì?'
+                        placeholder='Thêm bình luận'
                         placeholderTextColor='white'
                         style={{ flex: 1, paddingVertical: 5, color: 'white' }}
                         value={newMessage}
                         onChangeText={setNewMessage}
+                        onSubmitEditing={addMessage}
+                        blurOnSubmit={false}
+                        inverted={true}
                     />
                     <TouchableOpacity onPress={addMessage}>
-                        <Text style={{ color: 'blue' }}>Gửi</Text>
+                        <Text style={{ color: '#0099FF' }}>Gửi</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -92,10 +118,10 @@ const styles = StyleSheet.create({
     viewChat: {
         flex: 1,
         position: 'absolute',
-        left: 10,
-        right: 10,
+        left: 20,
+        right: 20,
         bottom: 0,
-        maxHeight: Dimensions.get('window').height / 3,
+        maxHeight: Dimensions.get('window').height / 2.5,
         justifyContent: 'flex-end'
     },
     viewInput: {
