@@ -10,6 +10,10 @@ import {
 } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import firestore from '@react-native-firebase/firestore'
+import GiftModal from '../modal/GiftModal'
+import BouncingImage from './BouncingImage'
+import Video from 'react-native-video'
+import LinearGradient from 'react-native-linear-gradient'
 
 const PAGE_SIZE = 10
 
@@ -18,7 +22,22 @@ const Home = () => {
     const [newMessage, setNewMessage] = useState('')
     const [isLoadingMore, setIsLoadingMore] = useState(false)
     const [lastVisible, setLastVisible] = useState(null)
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [selectedGift, setSelectedGift] = useState(null)
+    const [showGiftImage, setShowGiftImage] = useState(false)
     const ref = useRef(null)
+
+    const toggleModal = () => {
+        setIsModalVisible(!isModalVisible)
+    }
+
+    const handleGiftSelected = (gift) => {
+        setSelectedGift(gift)
+        setShowGiftImage(true)
+        setTimeout(() => {
+            setShowGiftImage(false)
+        }, 5000)
+    }
 
     useEffect(() => {
         const unsubscribe = firestore()
@@ -78,12 +97,21 @@ const Home = () => {
 
     return (
         <View style={styles.container}>
-            <Image
-                source={{
-                    uri: 'https://i.pinimg.com/originals/a4/01/85/a40185edb3c6339ef775c5c00c7c5eac.gif'
-                }}
+            {/* <Image
+                source={require('../asset/video.mp4')}
+                style={{ width: '100%', height: '100%' }}
+            /> */}
+            <Video
+                source={require('../asset/video.mp4')}
+                rate={1.0}
+                volume={1.0}
+                muted={false}
+                resizeMode={'cover'}
+                repeat
                 style={{ width: '100%', height: '100%' }}
             />
+            <BouncingImage isVisible={showGiftImage} />
+
             <View style={styles.viewChat}>
                 <FlatList
                     ref={ref}
@@ -119,22 +147,36 @@ const Home = () => {
                     onEndReached={loadMore}
                     onEndReachedThreshold={0.5}
                 />
-
-                <View style={styles.viewInput}>
-                    <TextInput
-                        placeholder='Thêm bình luận'
-                        placeholderTextColor='white'
-                        style={{ flex: 1, paddingVertical: 5, color: 'white' }}
-                        value={newMessage}
-                        onChangeText={setNewMessage}
-                        onSubmitEditing={addMessage}
-                        blurOnSubmit={false}
-                    />
-                    <TouchableOpacity onPress={addMessage}>
-                        <Text style={{ color: '#0099FF' }}>Gửi</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={styles.viewInput}>
+                        <TextInput
+                            placeholder='Thêm bình luận'
+                            placeholderTextColor='white'
+                            style={{ flex: 1, paddingVertical: 5, color: 'white' }}
+                            value={newMessage}
+                            onChangeText={setNewMessage}
+                            onSubmitEditing={addMessage}
+                            blurOnSubmit={false}
+                        />
+                        {/* <TouchableOpacity onPress={addMessage}>
+                            <Text style={{ color: '#0099FF' }}>Gửi</Text>
+                        </TouchableOpacity> */}
+                    </View>
+                    <TouchableOpacity onPress={toggleModal}>
+                        <Image
+                            source={{
+                                uri: 'https://cdn-icons-png.flaticon.com/512/4213/4213958.png'
+                            }}
+                            style={{ width: 35, height: 35 }}
+                        />
                     </TouchableOpacity>
                 </View>
             </View>
+            <GiftModal
+                isModalVisible={isModalVisible}
+                setModalVisible={setIsModalVisible}
+                onGiftSelected={handleGiftSelected}
+            />
         </View>
     )
 }
@@ -146,13 +188,11 @@ const styles = StyleSheet.create({
         flex: 1
     },
     viewChat: {
-        flex: 1,
         position: 'absolute',
         left: 20,
         right: 20,
         bottom: 0,
-        maxHeight: Dimensions.get('window').height / 2.5,
-        justifyContent: 'flex-end'
+        maxHeight: Dimensions.get('window').height / 2.5
     },
     viewInput: {
         borderWidth: 1,
@@ -162,6 +202,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         borderRadius: 20,
         marginTop: 15,
-        marginBottom: 15
+        marginBottom: 15,
+        flex: 1,
+        marginRight: 10
     }
 })
